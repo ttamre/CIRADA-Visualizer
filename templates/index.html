@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <link rel="stylesheet" href="static/style.css" type="text/css"/>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>CIRADA Visualizer</title>
+    </head>
+
+    <body>
+        <h1>CIRADA FIRST Data Visualizer</h1>
+
+        <form method="post">
+            <label for="ra">Coordinates (<em>in decimal degrees</em>)</label><br>
+            <input type="text" name="ra" placeholder="Right Ascention"><br>
+            <input type="text" name="dec" placeholder="Declination"><br>
+            <input type="text" name="radius" class="radius" placeholder="Radius (optional)"><br>
+            <input id="button" type="submit" value="Submit">
+        </form>
+
+        {% if items %}
+            <p>{{items}}</p>
+        {% endif %}
+
+        <p id="footer"><em>Built and maintained by <a href="https://github.com/ttamre">Tem Tamre</a></em></p>
+    </body>
+
+</html>
