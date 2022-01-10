@@ -28,5 +28,5 @@ jobs:
       # Runs a single command using the runners shell
       - name: Pytest
         run: |
-        python3 -m pip install -r requirements.txt
-        python3 -m pytest
+          python3 -m pip install -r requirements.txt
+          python3 -m pytest
