@@ -28,14 +28,41 @@ Condition: data is not null, data is the right type
 """
 def test_read_first_data():
     test_file = "data/FIRST_data.fit"
-    data = read_first_data(test_file)
+    test_data = read_first_data(test_file)
 
-    assert data is not None
-    assert type(data) is FITS_rec
+    assert any(test_data)
+    assert type(test_data) is FITS_rec
 
 
 """
-TODO Tests get_items_by_radius()
+Tests get_items_by_radius()'s ability to find nearby items
+Condition: test_result is not null, nearby item is returned
 """
-def get_items_by_radius():
-    assert True
+def test_get_items_by_radius():
+    test_item_1 = ('test_item_1', 338, 11, 1.12, '')
+    test_item_2 = ('test_item_2', 330, 10, 5.73, '')
+    test_item_3 = ('test_item_3', 300, 15, 24.0, '')
+        
+    test_data = [test_item_1, test_item_2, test_item_3]
+    test_input = {'ra': '338.12', 'dec': '11.53'}
+    test_result = get_items_by_radius(test_data, test_input)
+
+    assert any(test_result)
+    assert test_item_1 in test_result
+
+"""
+Tests get_items_by_radius()'s ability to find nearby items with user-specified radius
+Condition: test_result is not null, nearby item is returned
+"""
+def test_get_items_by_radius():
+    test_item_1 = ('test_item_1', 338, 11, 1.12, '')
+    test_item_2 = ('test_item_2', 330, 10, 5.73, '')
+    test_item_3 = ('test_item_3', 300, 15, 24.0, '')
+        
+    test_data = [test_item_1, test_item_2, test_item_3]
+    test_input = {'ra': '338.12', 'dec': '11.53', 'radius': '10'}
+    test_result = get_items_by_radius(test_data, test_input)
+
+    assert any(test_result)
+    assert test_item_1 in test_result
+    assert test_item_2 in test_result

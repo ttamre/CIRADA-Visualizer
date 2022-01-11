@@ -18,37 +18,20 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-
 from astropy import units as u
 from astropy.io import fits
 from astropy.coordinates import SkyCoord
-import csv
+from astropy.table import Table
+from astropy.utils.data import get_pkg_data_filename
 
-
-"""
-Takes headers as a CSV file and returns the headers as a list
-
-Params: filename:str    header filename (default data/FIRST_data_columns.txt)
-Return: headers:list    headers
-"""
-def read_headers(filename="data/FIRST_data_columns.txt"):
-    with open(filename) as f:
-        reader = csv.reader(f)
-        headers = list(reader)
-
-    formatted_headers = []
-    for item in headers[1:]:
-        name, formt, units, explanation = item
-        formatted_headers.append(f"{name} ({formt.strip()};{units}): {explanation}")
-
-    return '\n'.join(formatted_headers) + '\n'
-
+import matplotlib.pyplot as plt
 
 """
 Takes binary data as a FITS file and returns the decoded data
 
 Params: filename:str    FITS filename (default data/FIRST_data.fit)
         index:int       HDUList index that contains the binary table (default 1)
+Return: data
 """
 def read_first_data(filename="data/FIRST_data.fit", index=1):
     hdu_list = fits.open(filename)
@@ -81,5 +64,58 @@ def process_coordinates(raw_data):
 
     return processed_data
 
-headers = read_headers()
-data = read_first_data()
+
+"""
+Calculates the distance between a FITS item and a target SkyCoord
+
+Params: item:list       First item to calculate distance to
+        target:SkyCoord Target SkyCoord to calculate distance from
+
+Return: :float          The distance between the item and the target (in degrees)
+"""
+def calculate_distance(item, target):
+    item_coord = SkyCoord(ra=item[1] * u.degree, dec=item[2] * u.degree)
+    return item_coord.separation(target).degree
+
+
+"""
+Gets all items near the user specified point
+
+Params: data:list:tuple     FITS data that contains the items
+        user_input:dict     HTTP POST form data that contains RA, Dec, and (optionally) radius
+        default:float       Default radius (=0.25)
+
+Return: results:list        List of items near the user specified point
+"""
+def get_items_by_radius(data, user_input, default=0.25):
+    if not any(user_input.values()):
+        return None
+
+    # Sort by RA: https://stackoverflow.com/a/3121985
+    # data = sorted(data, key = lambda item: float(item[1]))
+    # print("-------- DATA", data[0])
+    # print("-------- DATA", data[1])
+    # print("-------- DATA", data[2])
+
+    ra = float(user_input['ra']) * u.degree
+    dec = float(user_input['dec']) * u.degree
+    radius = float(user_input['radius']) if user_input['radius'] else default
+    
+    target_coord = SkyCoord(ra=ra, dec=dec)
+    result = next(item for item in enumerate(data) if calculate_distance(item[1], target_coord) < radius)
+
+    print("RESULTS\n", list(result))
+    return list(result)
+
+
+"""
+"""
+def generate_image(data):
+    hdu = fits.PrimaryHDU(data)
+    hdu.writeto("data/result.fits")
+
+    image_file = get_pkg_data_filename("data/result.fits")
+    image_data = fits.getdata(image_file, ext=0)
+    
+    plt.figure()
+    plt.imsave("result.png", image_data)

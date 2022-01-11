@@ -40,10 +40,24 @@ Condition: HTTP 200 response, image in response
 """
 def test_index_coords():
     with app.test_client() as client:
-        data = {'ra': '338.12', 'dec': '11.53'}
-        response = client.post("/", data=data)
+        test_input = {'ra': '338.12', 'dec': '11.53'}
+        response = client.post("/", data=test_input)
 
         assert response.status_code == 200
         # TODO assert test_image in response.data
-        # assert b"img" in response.data
+        # assert b"img" in response.data?
+
+
+"""
+Test POST request on index with coordinate and radius form data
+Condition: HTTP 200 response, image in response
+"""
+def test_index_coords():
+    with app.test_client() as client:
+        test_input = {'ra': '338.12', 'dec': '11.53', 'radius': '1'}
+        response = client.post("/", data=test_input)
+
+        assert response.status_code == 200
+        # TODO assert test_image in response.data
+        # assert b"img" in response.data?
         
