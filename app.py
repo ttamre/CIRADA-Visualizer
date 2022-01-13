@@ -2,7 +2,7 @@
 
 """
 CIRADA Interview Project
-Copyright (C) 2021 Tem Tamre
+Copyright (C) 2022 Tem Tamre
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -73,4 +73,11 @@ def index():
 
 
 if __name__ == "__main__":
+    print("""
+    CIRADA Interview Project Copyright (C) 2022 Tem Tamre
+
+    This program comes with ABSOLUTELY NO WARRANTY; This is free software,
+    and you are welcome to redistribute it under certain conditions;
+    Visit https://www.gnu.org/licenses/gpl-3.0.en.html for details.""")
+    
     serve(app)
