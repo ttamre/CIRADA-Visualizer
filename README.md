@@ -14,6 +14,9 @@
 A website that processes and visualizes astronomical data based on provided FIRST data provided as FITS files.<br>This project was developed as an interview presentation for the CIRADA software developer competition.<br>This project was developed using python, flask, and astropy, with pytest and github actions for automated testing.
 </p>
 
+<div align="center">
+    <img src="https://github.com/ttamre/CIRADA-Visualizer/blob/master/static/demo.gif?raw=true">
+</div>
 ## Usage
 This project requires [Python 3](https://www.python.org/downloads/)
 
