@@ -17,6 +17,7 @@ A website that processes and visualizes astronomical data based on provided FIRS
 <div align="center">
     <img src="https://github.com/ttamre/CIRADA-Visualizer/blob/master/static/demo.gif?raw=true">
 </div>
+
 ## Usage
 This project requires [Python 3](https://www.python.org/downloads/)
 
