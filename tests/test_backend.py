@@ -21,8 +21,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import pytest
 import os
 
+from markupsafe import Markup
 from backend import *
-
 
 """
 Tests read_first_data()'s ability to properly process FIRST data files
@@ -59,7 +59,6 @@ def test_calculate_distance():
 Tests get_items_by_radius()'s ability to find nearby items
 Condition: test_result is not empty, nearby item is returned
 """
-@pytest.mark.skip
 def test_get_items_by_default_radius():
     test_item_1 = ('test_item_1', 338.10, 11.4, 1.12, '')
     test_item_2 = ('test_item_2', 338.07, 12.0, 5.73, '')
@@ -77,7 +76,6 @@ def test_get_items_by_default_radius():
 Tests get_items_by_radius()'s ability to find nearby items with user-specified radius
 Condition: test_result is not empty, nearby item is returned
 """
-@pytest.mark.skip
 def test_get_items_by_custom_radius():
     test_item_1 = ('test_item_1', 338.10, 11.4, 1.12, '')
     test_item_2 = ('test_item_2', 338.07, 12.0, 5.73, '')
@@ -94,7 +92,7 @@ def test_get_items_by_custom_radius():
 
 """
 Tests formatted results
-Condition: test_formatted_results is not empty, proper tags exist in each item
+Condition: test_formatted_results is not empty, each result is a Markup object
 """
 def test_format_results():
     test_item_1 = ('test_item_1', 338.10, 11.4, 1.12, '')
@@ -104,25 +102,21 @@ def test_format_results():
     test_formatted_results = format_results(test_results)
 
     assert any(test_formatted_results)
-    assert all(["<p><b>" in result for result in test_formatted_results])
+    assert all(isinstance(item, Markup) for item in test_formatted_results)
 
 
 """
 Tests image generation
-Condition:  test_filename is a string, test_filename exists as a valid png,
-            test_fits_file doesn't exist
+Condition: test_output_file exists as a valid png file
 """
-@pytest.mark.skip
 def test_generate_image():
     test_item_1 = ('test_item_1', 338.10, 11.4, 1.12, '')
     test_item_2 = ('test_item_2', 338.07, 12.0, 5.73, '')
     test_item_3 = ('test_item_3', 300.10, 13.5, 24.0, '')
     test_results = [test_item_1, test_item_2, test_item_3]
 
-    test_fits_file = "data/test_temp.fits"
-    test_png_file = "data/test_png.fits"
-    test_filename = generate_image(test_results, test_fits_file, test_png_file)
+    test_output_file = "test_results.png"
+    test_output_file = generate_image(test_results, output_file=test_output_file)
 
-    assert isinstance(test_filename, str)
-    assert os.path.exists(test_filename)
-    assert not os.path.exists(test_fits_file)
+    assert os.path.exists('static/' + test_output_file)
+    assert test_output_file.endswith('.png')

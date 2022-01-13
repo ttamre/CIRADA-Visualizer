@@ -40,7 +40,7 @@ Test POST request on index with coordinate form data
 Condition: HTTP 200 response, image in response
 """
 @pytest.mark.skip
-def test_index_coords():
+def test_index_coords_default_radius():
     with app.test_client() as client:
         test_input = {'ra': '338.12', 'dec': '11.53'}
         response = client.post("/", data=test_input)
@@ -55,7 +55,7 @@ Test POST request on index with coordinate and radius form data
 Condition: HTTP 200 response, image in response
 """
 @pytest.mark.skip
-def test_index_coords():
+def test_index_coords_custom_radius():
     with app.test_client() as client:
         test_input = {'ra': '338.12', 'dec': '11.53', 'radius': '1'}
         response = client.post("/", data=test_input)

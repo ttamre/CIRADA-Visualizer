@@ -17,9 +17,55 @@ body {
     min-height: 100vh;
 }
 
+div {
+    margin: auto;
+
+}
+
 p {
     color: black;
     font-size: 12pt;
+    text-align: left;
+}
+
+/* https://codepen.io/jadlimcaco/pen/ExjGrqJ */
+.container {
+    border-top-left-radius: 37px 140px;
+    border-top-right-radius: 23px 130px;
+    border-bottom-left-radius: 110px 19px;
+    border-bottom-right-radius: 120px 24px;
+
+    margin-top: 20px;
+    margin-bottom: 20px;
+
+    display: block;
+    position: relative;
+    border: solid 3px #6e7491;
+    padding: 40px 60px;
+    max-width: 800px;
+    width: 70%;
+    font-size: 17px;
+    line-height: 28px;
+    transform: rotate(-1deg);
+    box-shadow: 3px 15px 8px -10px rgba(0, 0, 0, 0.3);
+    transition: all 0.13s ease-in;
+  }
+  
+.container:hover {
+    transform: translateY(-10px) rotate(1deg);
+    box-shadow: 3px 15px 8px -10px rgba(0, 0, 0, 0.3);
+}
+  
+.container:hover .border {
+    transform: translateY(4px) rotate(-5deg);
+}
+
+img {
+    padding: 0;
+    display: block;
+    margin: 0 auto;
+    max-height: 100%;
+    max-width: 100%;
 }
 
 label {

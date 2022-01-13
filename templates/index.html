@@ -19,15 +19,21 @@
             <input id="button" type="submit" value="Submit">
         </form>
 
+        <div>
+        {% if image %}
+            <div class="container">
+                <img src="{{ url_for('static', filename=image) }}" />
+            </div>
+        {% endif %}
+
         {% if items %}
+            <p>
             {% for item in items %}
                 {{item}}
             {% endfor %}
+            </p>
         {% endif %}
-
-        {% if image %}
-            <img src="{{ image }}" alt="Results">
-        {% endif %}
+        </div>
 
         <p id="footer"><em>Built and maintained by <a href="https://github.com/ttamre">Tem Tamre</a></em></p>
     </body>

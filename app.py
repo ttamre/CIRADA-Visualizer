@@ -19,9 +19,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 import logging
+from backend import *
+
 from flask import Flask, render_template, request, abort
 from waitress import serve
-from backend import *
 
 app = Flask(__name__)
 logging.basicConfig(level=logging.DEBUG)
@@ -52,7 +53,8 @@ def index():
 
         # Send a list of items near the target point to the webpage
         logging.debug("Getting items...")
-        items = get_items_by_radius(data, user_input)
+        # items = get_items_by_radius(data, user_input)
+        items = data[5000:5010]
         formatted_items = format_results(items)
         logging.debug(f"Found {str(len(items))} items")
 
@@ -60,7 +62,7 @@ def index():
         try:
             logging.debug("Generating image...")
             image = generate_image(items)
-            logging.debug("Generated", image)
+            logging.debug("Generated image!")
         except:
             logging.debug("Couldn't generate image")
             image = None

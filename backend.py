@@ -19,14 +19,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 import os
-import matplotlib.pyplot as plt
 
 from astropy import units as u
 from astropy.io import fits
 from astropy.coordinates import SkyCoord
-from astropy.table import Table
-from astropy.utils.data import get_pkg_data_filename
-
+from PIL import Image, ImageDraw
+from markupsafe import Markup, escape
 
 """
 Takes binary data as a FITS file and returns the decoded data sorted by right ascention
@@ -70,7 +68,7 @@ def get_items_by_radius(data, user_input, default=0.25):
 
     ra = float(user_input['ra']) * u.degree
     dec = float(user_input['dec']) * u.degree
-    radius = float(user_input['radius']) if user_input['radius'] else default
+    radius = float(user_input['radius']) if 'radius' in user_input else default
     
     target_coord = SkyCoord(ra=ra, dec=dec)
     # result = next(item for item in enumerate(data) if calculate_distance(item[1], target_coord) < radius)
@@ -87,15 +85,16 @@ def get_items_by_radius(data, user_input, default=0.25):
 Takes a list of FITS records and formatts them into HTML paragraphs
 
 Params: results:list            List of FITS records
-Return: formatted_results:list  Formatted list of FITS records as strings
+Return: formatted_results:list  Formatted list of FITS records as safely escaped strings
 """
 def format_results(results):
     formatted_results = []
     for item in results:
         name, ra, dec, flux, spss = item
-        spss = {'s': 'star', 'g': 'galaxy', '': 'none'}.get(spss)
-        item = f"<p><b>{name} (<em>Classification: {spss}</em>):</b> ({ra}deg, {dec}deg): {flux}mJy</p><br>"
-        formatted_results.append(item)
+        spss = {'s': 'Star', 'g': 'Galaxy', '': 'No Classification'}.get(spss)
+        item = """<b>{0}:</b> <em>{1}</em><br>{2} mJy ({3} deg, {4} deg)<br><br>
+        """.format(escape(name), escape(spss), escape(flux), escape(ra), escape(dec))
+        formatted_results.append(Markup(item))
     
     return formatted_results
 
@@ -103,21 +102,23 @@ def format_results(results):
 Generate image file from a FITS data entry
 
 Params: data:list           List of FITS data records
-        fits_filename:str   Filename for FITS image output (will be deleted)
+        scale:int           Scale to multiply the image size by (=5)
         png_filename:str    Filename for PNG image output (will be rendered in HTML)
-Return: results_png:str     Resulting PNG filename
+Return: output_file:str     Resulting PNG filename
 """
-def generate_image(data, fits_filename="data/temp.fits", png_filename="data/results.png"):
-    hdu = fits.PrimaryHDU(data)
-    hdu.writeto(fits_filename)
-    hdu.close()
+def generate_image(data, scale=5, output_file="results.png"):
+    colours = {'s': (255,223,51,255), 'g': (169,51,255,255), '': (51,255,153,255)}
+    image = Image.new('RGBA', (360 * scale, 180 * scale), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(image)
+    
+    image_data = [(int(item[1]) * scale, (int(item[2]) + 90) * scale, item[4]) for item in data]
+    for item in image_data:
+        coords = (item[0]-scale, item[1]-scale, item[0]+scale, item[1]+scale)
+        draw.ellipse(coords, fill=colours.get(item[2]), outline=(0,0,0,0))
+    
+    for filename in os.listdir('static/'):
+        if filename.endswith(".png"):
+            os.remove("static/" + filename)
 
-    results_fits = get_pkg_data_filename(fits_filename)
-    results_data = fits.getdata(results_fits, ext=0)
-    
-    if os.path.exists(fits_filename):
-        os.remove(fits_filename)
-    
-    plt.figure()
-    plt.imsave(png_filename, results_data)
-    return png_filename
+    image.save('static/' + output_file, 'png', quality=95)
+    return output_file
