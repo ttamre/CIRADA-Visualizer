@@ -78,6 +78,7 @@ if __name__ == "__main__":
 
     This program comes with ABSOLUTELY NO WARRANTY; This is free software,
     and you are welcome to redistribute it under certain conditions;
-    Visit https://www.gnu.org/licenses/gpl-3.0.en.html for details.""")
+    Visit https://www.gnu.org/licenses/gpl-3.0.en.html for details.
+    """)
     
     serve(app)
