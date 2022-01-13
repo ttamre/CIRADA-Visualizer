@@ -18,30 +18,52 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
+import pytest
+import os
+
 from backend import *
-from astropy.io.fits.fitsrec import FITS_rec
 
 
 """
 Tests read_first_data()'s ability to properly process FIRST data files
-Condition: data is not null, data is the right type
+Condition: data is not null, data is the right type, data is sorted
 """
 def test_read_first_data():
     test_file = "data/FIRST_data.fit"
     test_data = read_first_data(test_file)
 
     assert any(test_data)
-    assert type(test_data) is FITS_rec
+    assert isinstance(test_data, list)
+
+    # Checks various item pairs throughout the list to ensure sorting
+    length = len(test_data)
+    indexes = [0, 10, 100, length//10, length//5, length//3, length//2, length-2]
+    assert all(test_data[i][1] < test_data[i+1][1] for i in indexes)
+
+
+"""
+Tests distance calculation between a FITS record and a target SkyCoord
+Condition: distance is a float, calculation is valid
+"""
+def test_calculate_distance():
+    test_threshold = 0.25
+    test_item_1 = ('test_item_1', 338.10, 11.5, 1.12, 's')
+    test_target = SkyCoord(ra=338.12 * u.degree, dec=11.53 * u.degree)
+    distance = calculate_distance(test_item_1, test_target)
+
+    assert isinstance(distance, float)
+    assert distance < test_threshold
 
 
 """
 Tests get_items_by_radius()'s ability to find nearby items
-Condition: test_result is not null, nearby item is returned
+Condition: test_result is not empty, nearby item is returned
 """
-def test_get_items_by_radius():
-    test_item_1 = ('test_item_1', 338, 11, 1.12, '')
-    test_item_2 = ('test_item_2', 330, 10, 5.73, '')
-    test_item_3 = ('test_item_3', 300, 15, 24.0, '')
+@pytest.mark.skip
+def test_get_items_by_default_radius():
+    test_item_1 = ('test_item_1', 338.10, 11.4, 1.12, '')
+    test_item_2 = ('test_item_2', 338.07, 12.0, 5.73, '')
+    test_item_3 = ('test_item_3', 300.10, 13.5, 24.0, '')
         
     test_data = [test_item_1, test_item_2, test_item_3]
     test_input = {'ra': '338.12', 'dec': '11.53'}
@@ -50,14 +72,16 @@ def test_get_items_by_radius():
     assert any(test_result)
     assert test_item_1 in test_result
 
+
 """
 Tests get_items_by_radius()'s ability to find nearby items with user-specified radius
-Condition: test_result is not null, nearby item is returned
+Condition: test_result is not empty, nearby item is returned
 """
-def test_get_items_by_radius():
-    test_item_1 = ('test_item_1', 338, 11, 1.12, '')
-    test_item_2 = ('test_item_2', 330, 10, 5.73, '')
-    test_item_3 = ('test_item_3', 300, 15, 24.0, '')
+@pytest.mark.skip
+def test_get_items_by_custom_radius():
+    test_item_1 = ('test_item_1', 338.10, 11.4, 1.12, '')
+    test_item_2 = ('test_item_2', 338.07, 12.0, 5.73, '')
+    test_item_3 = ('test_item_3', 300.10, 13.5, 24.0, '')
         
     test_data = [test_item_1, test_item_2, test_item_3]
     test_input = {'ra': '338.12', 'dec': '11.53', 'radius': '10'}
@@ -66,3 +90,39 @@ def test_get_items_by_radius():
     assert any(test_result)
     assert test_item_1 in test_result
     assert test_item_2 in test_result
+
+
+"""
+Tests formatted results
+Condition: test_formatted_results is not empty, proper tags exist in each item
+"""
+def test_format_results():
+    test_item_1 = ('test_item_1', 338.10, 11.4, 1.12, '')
+    test_item_2 = ('test_item_2', 338.07, 12.0, 5.73, '')
+    test_item_3 = ('test_item_3', 300.10, 13.5, 24.0, '')
+    test_results = [test_item_1, test_item_2, test_item_3]
+    test_formatted_results = format_results(test_results)
+
+    assert any(test_formatted_results)
+    assert all(["<p><b>" in result for result in test_formatted_results])
+
+
+"""
+Tests image generation
+Condition:  test_filename is a string, test_filename exists as a valid png,
+            test_fits_file doesn't exist
+"""
+@pytest.mark.skip
+def test_generate_image():
+    test_item_1 = ('test_item_1', 338.10, 11.4, 1.12, '')
+    test_item_2 = ('test_item_2', 338.07, 12.0, 5.73, '')
+    test_item_3 = ('test_item_3', 300.10, 13.5, 24.0, '')
+    test_results = [test_item_1, test_item_2, test_item_3]
+
+    test_fits_file = "data/test_temp.fits"
+    test_png_file = "data/test_png.fits"
+    test_filename = generate_image(test_results, test_fits_file, test_png_file)
+
+    assert isinstance(test_filename, str)
+    assert os.path.exists(test_filename)
+    assert not os.path.exists(test_fits_file)

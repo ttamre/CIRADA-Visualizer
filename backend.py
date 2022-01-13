@@ -18,16 +18,18 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
+import os
+import matplotlib.pyplot as plt
+
 from astropy import units as u
 from astropy.io import fits
 from astropy.coordinates import SkyCoord
 from astropy.table import Table
 from astropy.utils.data import get_pkg_data_filename
 
-import matplotlib.pyplot as plt
 
 """
-Takes binary data as a FITS file and returns the decoded data
+Takes binary data as a FITS file and returns the decoded data sorted by right ascention
 
 Params: filename:str    FITS filename (default data/FIRST_data.fit)
         index:int       HDUList index that contains the binary table (default 1)
@@ -37,32 +39,8 @@ def read_first_data(filename="data/FIRST_data.fit", index=1):
     hdu_list = fits.open(filename)
     binary_table = hdu_list[index]
 
-    return binary_table.data
-
-
-"""
-*DO NOT USE - BETTER WAY IS TO CONVERT ALL COORDINATE USER INPUT TO DECIMAL DEGREES*
-
-Takes a list of data (formatted with RA = data[n, 1] and Dec = data[n, 2])
-and makes a new identical list with an added SkyCoord object appended to each item
-that represents it's coordinates. This allows for easy unit conversion using the
-astropy methods in the SkyCoord object.
-
-Params: raw_data:list:tuple         FITS data to add SkyCoord objects to
-Return: processed_data:list:tuple   Data with SkyCoord objects appended to every line 
-"""
-def process_coordinates(raw_data):
-    processed_data = []
-    for item in raw_data:
-        # Headers: Name, RA, Dec, Integrated flux density, SDSS classification
-        ra = item[1] * u.degree
-        dec = item[2] * u.degree
-
-        # Appends SkyCoord to end of tuple
-        item = (*item, SkyCoord(ra=ra, dec=dec))
-        processed_data.append(item)
-
-    return processed_data
+    data = binary_table.data
+    return sorted(data, key=lambda data: data[1])
 
 
 """
@@ -91,31 +69,56 @@ def get_items_by_radius(data, user_input, default=0.25):
     if not any(user_input.values()):
         return None
 
-    # Sort by RA: https://stackoverflow.com/a/3121985
-    # data = sorted(data, key = lambda item: float(item[1]))
-    # print("-------- DATA", data[0])
-    # print("-------- DATA", data[1])
-    # print("-------- DATA", data[2])
-
     ra = float(user_input['ra']) * u.degree
     dec = float(user_input['dec']) * u.degree
     radius = float(user_input['radius']) if user_input['radius'] else default
     
     target_coord = SkyCoord(ra=ra, dec=dec)
-    result = next(item for item in enumerate(data) if calculate_distance(item[1], target_coord) < radius)
+    # result = next(item for item in enumerate(data) if calculate_distance(item[1], target_coord) < radius)
+    
+    results = []
+    for item in data:
+        if calculate_distance(item, target_coord) < radius:
+            results.append(item)
 
-    print("RESULTS\n", list(result))
-    return list(result)
+    return results
 
 
 """
+Takes a list of FITS records and formatts them into HTML paragraphs
+
+Params: results:list            List of FITS records
+Return: formatted_results:list  Formatted list of FITS records as strings
 """
-def generate_image(data):
+def format_results(results):
+    formatted_results = []
+    for item in results:
+        name, ra, dec, flux, spss = item
+        spss = {'s': 'star', 'g': 'galaxy', '': 'none'}.get(spss)
+        item = f"<p><b>{name} (<em>Classification: {spss}</em>):</b> ({ra}deg, {dec}deg): {flux}mJy</p><br>"
+        formatted_results.append(item)
+    
+    return formatted_results
+
+"""
+Generate image file from a FITS data entry
+
+Params: data:list           List of FITS data records
+        fits_filename:str   Filename for FITS image output (will be deleted)
+        png_filename:str    Filename for PNG image output (will be rendered in HTML)
+Return: results_png:str     Resulting PNG filename
+"""
+def generate_image(data, fits_filename="data/temp.fits", png_filename="data/results.png"):
     hdu = fits.PrimaryHDU(data)
-    hdu.writeto("data/result.fits")
+    hdu.writeto(fits_filename)
+    hdu.close()
 
-    image_file = get_pkg_data_filename("data/result.fits")
-    image_data = fits.getdata(image_file, ext=0)
+    results_fits = get_pkg_data_filename(fits_filename)
+    results_data = fits.getdata(results_fits, ext=0)
+    
+    if os.path.exists(fits_filename):
+        os.remove(fits_filename)
     
     plt.figure()
-    plt.imsave("result.png", image_data)
+    plt.imsave(png_filename, results_data)
+    return png_filename

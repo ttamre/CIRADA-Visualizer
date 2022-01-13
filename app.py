@@ -18,11 +18,14 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-from http.client import METHOD_NOT_ALLOWED
+import logging
 from flask import Flask, render_template, request, abort
+from waitress import serve
 from backend import *
 
 app = Flask(__name__)
+logging.basicConfig(level=logging.DEBUG)
+
 
 """
 Main page for the website
@@ -39,16 +42,33 @@ def index():
         return render_template("index.html")
     elif request.method == 'POST':
         # Load data and get the target point specified by the user from the HTML form
+        logging.debug("Reading FITS data...")
         data = read_first_data()
+        logging.debug(f"Loaded {len(data)} items")
+
+        # Get the user's input from the HTML form
+        logging.debug("Reading user input...")
         user_input = request.form.to_dict()
 
         # Send a list of items near the target point to the webpage
+        logging.debug("Getting items...")
         items = get_items_by_radius(data, user_input)
-        image = generate_image(items)
-        return render_template("index.html", items=items)
+        formatted_items = format_results(items)
+        logging.debug(f"Found {str(len(items))} items")
+
+        # Attempt to generate a PNG file from the results
+        try:
+            logging.debug("Generating image...")
+            image = generate_image(items)
+            logging.debug("Generated", image)
+        except:
+            logging.debug("Couldn't generate image")
+            image = None
+
+        return render_template("index.html", items=formatted_items, image=image)
     else:
         abort(405)
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    serve(app)

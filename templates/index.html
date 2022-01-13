@@ -20,7 +20,13 @@
         </form>
 
         {% if items %}
-            <p>{{items}}</p>
+            {% for item in items %}
+                {{item}}
+            {% endfor %}
+        {% endif %}
+
+        {% if image %}
+            <img src="{{ image }}" alt="Results">
         {% endif %}
 
         <p id="footer"><em>Built and maintained by <a href="https://github.com/ttamre">Tem Tamre</a></em></p>
