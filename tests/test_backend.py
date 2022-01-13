@@ -18,7 +18,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-import pytest
 import os
 
 from markupsafe import Markup
@@ -65,7 +64,7 @@ def test_get_items_by_default_radius():
     test_item_3 = ('test_item_3', 300.10, 13.5, 24.0, '')
         
     test_data = [test_item_1, test_item_2, test_item_3]
-    test_input = {'ra': '338.12', 'dec': '11.53'}
+    test_input = {'ra': '338.12', 'dec': '11.53', 'radius': ''}
     test_result = get_items_by_radius(test_data, test_input)
 
     assert any(test_result)

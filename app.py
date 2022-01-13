@@ -25,7 +25,7 @@ from flask import Flask, render_template, request, abort
 from waitress import serve
 
 app = Flask(__name__)
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 
 """
@@ -43,28 +43,27 @@ def index():
         return render_template("index.html")
     elif request.method == 'POST':
         # Load data and get the target point specified by the user from the HTML form
-        logging.debug("Reading FITS data...")
+        logging.info("Reading FITS data...")
         data = read_first_data()
-        logging.debug(f"Loaded {len(data)} items")
+        logging.info(f"Loaded {len(data)} items")
 
         # Get the user's input from the HTML form
-        logging.debug("Reading user input...")
+        logging.info("Reading user input...")
         user_input = request.form.to_dict()
 
         # Send a list of items near the target point to the webpage
-        logging.debug("Getting items...")
-        # items = get_items_by_radius(data, user_input)
-        items = data[5000:5010]
+        logging.info("Getting items...")
+        items = get_items_by_radius(data, user_input)
         formatted_items = format_results(items)
-        logging.debug(f"Found {str(len(items))} items")
+        logging.info(f"Found {str(len(items))} items")
 
         # Attempt to generate a PNG file from the results
         try:
-            logging.debug("Generating image...")
+            logging.info("Generating image...")
             image = generate_image(items)
-            logging.debug("Generated image!")
+            logging.info("Generated image!")
         except:
-            logging.debug("Couldn't generate image")
+            logging.info("Couldn't generate image")
             image = None
 
         return render_template("index.html", items=formatted_items, image=image)

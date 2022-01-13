@@ -68,7 +68,7 @@ def get_items_by_radius(data, user_input, default=0.25):
 
     ra = float(user_input['ra']) * u.degree
     dec = float(user_input['dec']) * u.degree
-    radius = float(user_input['radius']) if 'radius' in user_input else default
+    radius = float(user_input['radius']) if user_input.get('radius').isnumeric() else default
     
     target_coord = SkyCoord(ra=ra, dec=dec)
     # result = next(item for item in enumerate(data) if calculate_distance(item[1], target_coord) < radius)
