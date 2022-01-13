@@ -33,12 +33,11 @@ Takes binary data as a FITS file and returns the decoded data sorted by right as
 
 Params: filename:str    FITS filename (default data/FIRST_data.fit)
         index:int       HDUList index that contains the binary table (default 1)
-Return: data
+Return: data:list       List of data from the binary table sorted by RA
 """
 def read_first_data(filename="data/FIRST_data.fit", index=1):
     hdu_list = fits.open(filename)
     binary_table = hdu_list[index]
-
     data = binary_table.data
     return sorted(data, key=lambda data: data[1])
 
