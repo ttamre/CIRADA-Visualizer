@@ -20,7 +20,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import os
 
-from markupsafe import Markup
 from backend import *
 
 """
@@ -91,17 +90,22 @@ def test_get_items_by_custom_radius():
 
 """
 Tests formatted results
-Condition: test_formatted_results is not empty, each result is a Markup object
+Condition: test_formatted_results is not empty, strings were formatted
 """
 def test_format_results():
-    test_item_1 = ('test_item_1', 338.10, 11.4, 1.12, '')
-    test_item_2 = ('test_item_2', 338.07, 12.0, 5.73, '')
-    test_item_3 = ('test_item_3', 300.10, 13.5, 24.0, '')
+    test_item_1 = ('test_item_1', '338.10', '11.4', '1.12', '')
+    test_item_2 = ('test_item_2', '338.07', '12.0', '5.73', 's')
+    test_item_3 = ('test_item_3', '300.10', '13.5', '24.0', 'g')
     test_results = [test_item_1, test_item_2, test_item_3]
     test_formatted_results = format_results(test_results)
 
+    print(test_formatted_results)
     assert any(test_formatted_results)
-    assert all(isinstance(item, Markup) for item in test_formatted_results)
+    assert any('test_item_1' in item for item in test_formatted_results)
+    assert any('338.10' in item for item in test_formatted_results)
+    assert any('Star' in item for item in test_formatted_results)
+    assert any('Galaxy' in item for item in test_formatted_results)
+    assert any('' in item for item in test_formatted_results)
 
 
 """

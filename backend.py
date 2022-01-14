@@ -24,7 +24,7 @@ from astropy import units as u
 from astropy.io import fits
 from astropy.coordinates import SkyCoord
 from PIL import Image, ImageDraw
-from markupsafe import Markup, escape
+from markupsafe import escape
 
 """
 Takes binary data as a FITS file and returns the decoded data sorted by right ascention
@@ -85,16 +85,13 @@ def get_items_by_radius(data, user_input, default=0.25):
 Takes a list of FITS records and formatts them into HTML paragraphs
 
 Params: results:list            List of FITS records
-Return: formatted_results:list  Formatted list of FITS records as safely escaped strings
+Return: formatted_results:list  Formatted list of FITS records as HTML escaped strings
 """
 def format_results(results):
     formatted_results = []
     for item in results:
-        name, ra, dec, flux, spss = item
-        spss = {'s': 'Star', 'g': 'Galaxy', '': 'No Classification'}.get(spss)
-        item = """<b>{0}:</b> <em>{1}</em><br>{2} mJy ({3} deg, {4} deg)<br><br>
-        """.format(escape(name), escape(spss), escape(flux), escape(ra), escape(dec))
-        formatted_results.append(Markup(item))
+        spss = {'s': 'Star', 'g': 'Galaxy', '': ''}.get(item[4])
+        formatted_results.append([escape(value) for value in item[:4]] + [spss])
     
     return formatted_results
 
@@ -111,6 +108,7 @@ def generate_image(data, scale=5, output_file="results.png"):
     image = Image.new('RGBA', (360 * scale, 180 * scale), (0, 0, 0, 0))
     draw = ImageDraw.Draw(image)
     
+    # [(x, y, spss classification)]
     image_data = [(int(item[1]) * scale, (int(item[2]) + 90) * scale, item[4]) for item in data]
     for item in image_data:
         coords = (item[0]-scale, item[1]-scale, item[0]+scale, item[1]+scale)

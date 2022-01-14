@@ -27,11 +27,24 @@
         {% endif %}
 
         {% if items %}
-            <p>
+            <table>
+                <tr>
+                    <th>Name</th>
+                    <th>Right Ascention (deg)</th>
+                    <th>Declination (deg)</th>
+                    <th title="Integrated Flux Density">Flux (mJy)</th>
+                    <th>SDSS Classification</th>
+                </tr>
             {% for item in items %}
-                {{item}}
+                <tr>
+                    <td>{{item.0}}</td>
+                    <td>{{item.1}}</td>
+                    <td>{{item.2}}</td>
+                    <td>{{item.3}}</td>
+                    <td>{{item.4}}</td>
+                </tr>
             {% endfor %}
-            </p>
+            </table>
         {% endif %}
         </div>
 

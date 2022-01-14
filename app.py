@@ -25,7 +25,7 @@ from flask import Flask, render_template, request, abort
 from waitress import serve
 
 app = Flask(__name__)
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.CRITICAL)
 
 
 """
@@ -63,7 +63,7 @@ def index():
             image = generate_image(items)
             logging.info("Generated image!")
         except:
-            logging.info("Couldn't generate image")
+            logging.critical("Couldn't generate image")
             image = None
 
         return render_template("index.html", items=formatted_items, image=image)
